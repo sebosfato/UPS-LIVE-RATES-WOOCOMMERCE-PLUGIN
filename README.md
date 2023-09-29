@@ -12,3 +12,11 @@ Im not realy familiar with plugin development so im trying to use ChatGpt to giv
 If you have some working code that you can share please do it! would certainly help many people! 
 
 Thanks and welcome
+
+At this point of development:
+
+The plugin is able to add a shiping method in the list for woocommerce but is not yet showing up in the cart page. 
+
+Problem seem to be it misses passing the info of the packet for geting the rate or something... 
+
+the rate worked on the php without the plugin with the file you see as back.php 
