@@ -7,15 +7,15 @@
   define('version', 'v1');
 
 if (!class_exists('WC')) {
-    include_once ABSPATH . 'wp-content/plugins/woocommerce/woocommerce.php';
+    include_once ABSPATH . '/wp-content/plugins/woocommerce/woocommerce.php';
 }
         class UPS_Shipping_Method extends WC_Shipping_Method {
             public function __construct( $instance_id = 0 ){
                       // These title description are displayed on the configuration page
                 $this->id                 = 'ups_shipping'; // Unique ID for your shipping method
-                $this->method_title       =  __('UPS', 'ups-shipping'); // Displayed title in WooCommerce settings
-                $this->method_description =  esc_html__('UPS Live Rates Shipping Method', 'ups-shipping'); // Description shown in WooCommerce settings
-                $this->title              = __('', 'ups-shipping');// titulo que aparece na lista dropdown de metodos de entrega disponiveis
+                $this->method_title       =  __('Ups Shipping', 'ups-shipping'); // Displayed title in WooCommerce dropdown settings
+                $this->method_description =  esc_html__('UPS Live Rates Shipping', 'ups-shipping'); // Description shown in popup
+                $this->title              = __('', 'ups-shipping');// titulo que aparece na esquerda
                 $this->enabled            = "yes"; // This can be added as an setting but for this example its forced enabled
                 $this->instance_id        = absint( $instance_id );
                 $this->supports           = array(
@@ -33,7 +33,7 @@ if (!class_exists('WC')) {
                 $this->init_form_fields();
      
                  // reaplica se existe nome dinamico escolhido pelo usuario ou fica defaut
-                $this->title = $this->get_option('title', __('UPS', 'ups-shipping')); 
+                $this->title = $this->get_option('title', __('', 'ups-shipping')); 
                // $this->method_title = $this->get_option('method_title', __('Standard Shipping', 'ups-shipping')); 
 
              //   $this->method_description = $this->get_option('method_description', __('Select a Method', 'ups-shipping')); 
@@ -49,7 +49,7 @@ if (!class_exists('WC')) {
                         'title'       => __('Title', 'ups-shipping'),
                         'type'        => 'text',
                         'description' => __('This controls the title which the user sees during checkout.', 'ups-shipping'),
-                        'default'     => __('Ups', 'ups-shipping'),
+                        'default'     => __('', 'ups-shipping'),
                         'desc_tip'    => true,
                     ),
                     'enabled' => array(
@@ -110,7 +110,7 @@ private function get_ups_access_token() {
     // Get access token
     $curl = curl_init();
     curl_setopt_array($curl, [
-  CURLOPT_URL => "https://onlinetools.ups.com/security/v1/oauth/token",
+      CURLOPT_URL => "https://wwwcie.ups.com/security/v1/oauth/token",
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CUSTOMREQUEST  => "POST",
         CURLOPT_POSTFIELDS     => $payload,
@@ -143,13 +143,13 @@ private function get_ups_access_token() {
 
     // Function to calculate shipping rates
     public function calculate_shipping($package = array()) {
+
+      //echo $package;
         // Retrieve the UPS access token
         $access_token = $this->get_ups_access_token();
+        //echo $access_token;
         // Check if access token is obtained successfully
         if ($access_token) {
-            
-            
-            $curl = curl_init();
 
             // Define your API request payl oad and URL
 $rate_payload = array(
@@ -165,18 +165,18 @@ $rate_payload = array(
       "Shipper" => array(
         "Name" => "Henry Lee Thomson",
         "AttentionName" => "John Smith",
-        "ShipperNumber" => "zzzzzzz",
+        "ShipperNumber" =>  $this->get_option('merchantId'),
         "TaxIdentificationNumber" => "456789",
         "Phone" => array(
           "Number" => "1234567890"
         ),
         "Address" => array(
           "AddressLine" => array(
-            "34 Queen St"
+            "Rua Mario Enzio 347"
           ),
-          "City" => "Toronto",
+          "City" => "Sao Paulo",
           "StateProvinceCode" => "ON",
-          "PostalCode" => "M5C2M6",
+          "PostalCode" => "04711090",
           "CountryCode" => "BR"
         )
       ),
@@ -209,9 +209,9 @@ $rate_payload = array(
           "AddressLine" => array(
             "34 Queen St"
           ),
-          "City" => "Toronto",
-          "StateProvinceCode" => "ON",
-          "PostalCode" => "M5C2M6",
+          "City" => "Sao Paulo",
+          "StateProvinceCode" => "SP",
+          "PostalCode" => "04711090",
           "CountryCode" => "BR"
         )
       ),
@@ -219,12 +219,12 @@ $rate_payload = array(
         "ShipmentCharge" => array(
           "Type" => "01",
           "BillShipper" => array(
-            "AccountNumber" => "zzzzzzzz"
+            "AccountNumber" =>  $this->get_option('merchantId')
           )
         )
       ),
       "Service" => array(
-        "Code" => "08",
+        "Code" => "65",
         "Description" => "Expedited"
       ),
       "Package" => array(
@@ -236,7 +236,7 @@ $rate_payload = array(
           "UnitOfMeasurement" => array(
             "Code" => "KGS"
           ),
-          "Weight" => "10"
+          "Weight" => "0.3"
         )
       ),
       "ShipmentServiceOptions" => array(
@@ -309,19 +309,19 @@ $rate_payload = array(
   )
 );
 
-         //   $ship_to = $package['destination'];
-    //    $ship_from = $package['origin'];
-      //  $total_weight = $package['weight'];
+           $ship_to = $package['destination'];
+        $ship_from = $package['origin'];
+       $total_weight = $package['weight'];
             //update rate pay load
        //     $rate_payload = $this->prepare_shipment_payload($shipping_from_address, $ship_to, $total_weight);
 
 
 $query = array(
-  "additionaladdressvalidation" => "Fabio-Torturella"
+  "additionaladdressvalidation" => "string"
 );          
             //$version = "v1";
-           $url = "https://onlinetools.ups.com/api/shipments/" . $version . "/ship?" . http_build_query($query);
-        // $url = "https://wwwcie.ups.com/api/shipments/v1/ship?" . http_build_query($query);
+          // $url = "https://onlinetools.ups.com/api/shipments/v1/ship?" . http_build_query($query);
+         $url = "https://wwwcie.ups.com/api/shipments/v1/ship?" . http_build_query($query);
             // Make API request using cURL
             $curl = curl_init();
             curl_setopt_array($curl, [
@@ -352,21 +352,23 @@ $query = array(
                 if (isset($responseData['ShipmentResponse'])) {
                     // Extract and display the total charges information
                     $totalCharges = $responseData['ShipmentResponse']['ShipmentResults']['ShipmentCharges']['TotalCharges']['MonetaryValue'];
-                    $currencyCode = $responseData['ShipmentResponse']['ShipmentResults']['ShipmentCharges']['TotalCharges']['CurrencyCode'];
-                    //echo "Total Charges: " . $currencyCode . " " . number_format($totalCharges, 2); // Adjust the formatting as needed
+                   // $currencyCode = $responseData['ShipmentResponse']['ShipmentResults']['ShipmentCharges']['TotalCharges']['CurrencyCode'];
+                   // echo "Total Charges: " . $currencyCode . " " . number_format($totalCharges, 2); // Adjust the formatting as needed
           $this->add_rate( array(
-         'id'     => $this->id,
-         'label'  => $this->settings['title'],
-         'cost'   => $totalCharges
+              'id'   => $this->id,
+              'label'  => $this->title,
+              'cost'   => $totalCharges
+         
       ));
                 
                     // You can then use $totalCharges and $currencyCode in your cart display logic
                 } else {
                     echo "ShipmentResponse key not found in the response";
+                    echo $response;
                       $this->add_rate( array(
          'id'     => $this->id,
-         'label'  => $this->settings['title'],
-         'cost'   => $this->settings['cost']
+         'label'  => $this->title,
+         'cost'   => 500.00
       ));
                     
                 }
@@ -375,7 +377,9 @@ $query = array(
             // Handle the case where access token retrieval fails
             echo "Failed to retrieve UPS access token.";
         }
+//add_filter( 'woocommerce_shipping_methods', array( $this, 'calculate_shipping' ) );
+
     }
-    
+
             
         }
