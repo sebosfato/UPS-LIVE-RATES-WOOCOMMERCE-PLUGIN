@@ -165,7 +165,7 @@ $rate_payload = array(
       "Shipper" => array(
         "Name" => "Henry Lee Thomson",
         "AttentionName" => "John Smith",
-        "ShipperNumber" => "E91B32",
+        "ShipperNumber" => "zzzzzzz",
         "TaxIdentificationNumber" => "456789",
         "Phone" => array(
           "Number" => "1234567890"
@@ -219,7 +219,7 @@ $rate_payload = array(
         "ShipmentCharge" => array(
           "Type" => "01",
           "BillShipper" => array(
-            "AccountNumber" => "E91B32"
+            "AccountNumber" => "zzzzzzzz"
           )
         )
       ),
